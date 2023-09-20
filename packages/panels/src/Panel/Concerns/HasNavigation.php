@@ -49,7 +49,7 @@ trait HasNavigation
         }
 
         foreach ($this->getResources() as $resource) {
-            $resource::registerNavigationItems();
+            $resource::registerNavigationItems($this);
         }
 
         $this->isNavigationMounted = true;

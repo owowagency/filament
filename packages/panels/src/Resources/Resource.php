@@ -115,7 +115,7 @@ abstract class Resource
         return $infolist;
     }
 
-    public static function registerNavigationItems(): void
+    public static function registerNavigationItems(?Panel $panel): void
     {
         if (! static::shouldRegisterNavigation()) {
             return;
@@ -125,16 +125,17 @@ abstract class Resource
             return;
         }
 
-        Filament::getCurrentPanel()
-            ->navigationItems(static::getNavigationItems());
+        $panel ??= Filament::getCurrentPanel();
+
+        $panel->navigationItems(static::getNavigationItems($panel));
     }
 
     /**
      * @return array<NavigationItem>
      */
-    public static function getNavigationItems(): array
+    public static function getNavigationItems(?Panel $panel): array
     {
-        $routeBaseName = static::getRouteBaseName();
+        $routeBaseName = static::getRouteBaseName($panel->getId());
 
         return [
             NavigationItem::make(static::getNavigationLabel())
@@ -144,7 +145,7 @@ abstract class Resource
                 ->isActiveWhen(fn () => request()->routeIs("{$routeBaseName}.*"))
                 ->badge(static::getNavigationBadge(), color: static::getNavigationBadgeColor())
                 ->sort(static::getNavigationSort())
-                ->url(static::getNavigationUrl()),
+                ->url(static::getNavigationUrl($panel)),
         ];
     }
 
@@ -762,9 +763,9 @@ abstract class Resource
         static::$navigationSort = $sort;
     }
 
-    public static function getNavigationUrl(): string
+    public static function getNavigationUrl(?Panel $panel): string
     {
-        return static::getUrl();
+        return static::getUrl(panel: $panel?->getId());
     }
 
     public static function shouldRegisterNavigation(): bool
